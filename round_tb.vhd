@@ -27,23 +27,21 @@ end component;
     signal zero_lane : t_lane;
     signal zero_plane : t_plane;
 
+    type t_mode is (read_in, permutate, read_out);
+    signal mode : t_mode;
+
 begin
 
     round_map : round
     port map(
         round_in => round_in,
         round_number => round_number,
-        round_out => round_out);
+        round_out => round_out
+    );
 
     -- set state to zero
+    -- TODO check how to set indivdual state bits here
     zero_lane <= (others => '0');
-    -- i000: for x in 0 to 4 generate
-    --     zero_plane(x)<= zero_lane;
-    -- end generate;
-    --
-    -- i001: for y in 0 to 4 generate
-    --     zero_state(y)<= zero_plane;
-    -- end generate;
     set_plane_zero : process (zero_lane) is
     begin
         for x in 0 to 4 loop
@@ -58,30 +56,36 @@ begin
         end loop;
     end process;
 
-    nrst <= '0', '1' after 10 ns;
+    -- take DUT out of reset
+    nrst <= '0', '1' after 5 ns;
     
-    tb_gen : process (clk) is
+    -- main testbench process
+    tb_main : process (clk) is
     begin
         if (nrst = '0') then
             round_number <= (others => '0');
+            mode <= read_in;
 
         elsif (rising_edge(clk)) then
-            round_in <= zero_state;
-            --for x in 0 to 4 loop
-            --    for y in 0 to 4 loop
-            --        for z in 0 to 63 loop
-            --            round_in(x)(y)(z) <= '0';
-            --        end loop;
-            --    end loop;
-            --end loop;
 
-            --for x in 0 to 4 loop
-            --    for y in 0 to 4 loop
-            --        for z in 0 to 63 loop
-            --            report "Hello";
-            --        end loop;
-            --    end loop;
-            --end loop;
+            case mode is
+                when read_in =>
+                    -- first round
+                    round_in <= zero_state;
+                    mode <= read_out;
+                when permutate =>
+                    -- rounds 2 to 23
+                    if (round_number < 23) then
+                        round_in <= round_out;
+                        round_number <= round_number + 1;
+                    else
+                        mode <= read_out;
+                    end if;
+                when read_out =>
+                    -- do nothing for now
+                when others =>
+                    mode <= read_out;
+            end case;
         end if;
     end process;
 

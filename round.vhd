@@ -1,5 +1,5 @@
 library IEEE;
-use IEEE.std_logic_1164.all;
+use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 library work;
@@ -32,7 +32,7 @@ architecture rtl of round is
     signal C : t_plane;
     signal D : t_plane;
 
-    -- FIXME used for Rho
+    -- FIXME used for Rho, but likely won't work
     signal xx : integer := 1;
     signal yy : integer := 0;
     signal t : integer := 0;
@@ -158,9 +158,9 @@ begin
 end process;
 
 -- Iota
--- FIXME does this work as intended?
 process (iota_in) is
 begin
+    -- for x in 1 to 4 loop
     for x in 0 to 4 loop
         for y in 0 to 4 loop
             for z in 0 to 63 loop
@@ -169,9 +169,16 @@ begin
         end loop;
     end loop;
 
+    -- add this block if theta doesnt produce the right results
+    -- for y in 1 to 4 loop
+    --     for z in 0 to 63 loop
+    --         iota_out(0)(y)(z) <= iota_in(0)(y)(z);
+    --     end loop;
+    -- end loop;
+
     for z in 0 to 63 loop
         iota_out(0)(0)(z) <= iota_in(0)(0)(z) xor round_constant(z);
     end loop;
 end process;
 
-end rtl;
+end architecture;
