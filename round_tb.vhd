@@ -13,7 +13,6 @@ architecture tb of round_tb is
 component round is
     port (
         round_in : in  t_state;
-        -- round_constant : in std_logic_vector(63 downto 0);
         round_number : in unsigned(4 downto 0);
         round_out : out t_state
     );
@@ -72,7 +71,7 @@ begin
                 when read_in =>
                     -- first round
                     round_in <= zero_state;
-                    mode <= read_out;
+                    mode <= permutate;
                 when permutate =>
                     -- rounds 2 to 23
                     if (round_number < 23) then
