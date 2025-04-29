@@ -17,20 +17,43 @@ end entity;
 
 architecture rtl of sha3 is
 
+component round is
+    port (
+        round_in : in  t_state;
+        round_number : in unsigned(4 downto 0);
+        round_out : out t_state
+    );
+end component;
+
     signal state : t_state;
+    signal clk : std_logic;
+    signal nrst : std_logic;
+
+    signal round_in, round_out, zero_state : t_state;
+    signal round_number : unsigned(4 downto 0);
+    signal zero_lane : t_lane;
+    signal zero_plane : t_plane;
+
+    type t_mode is (read_in, permutate, read_out);
+    signal mode : t_mode;
 
 begin
 
-    p_main : process (clk, nrst) is
+    round_map : round
+    port map(
+        round_in => round_in,
+        round_number => round_number,
+        round_out => round_out
+    );
+
+    p_main : process (clk) is
     begin
         if rising_edge(clk) then
-            if nrst = '0' then
-                hash <= (others => '0');
-                -- not sure if this works
-                --state <= (others => '0');
+            if (nrst = '0') then
+                round_number <= (others => '0');
             else
-                -- do sth.
-                report "Hello";
+                case mode is
+                end case;
             end if;
         end if;
     end process;

@@ -26,6 +26,10 @@ end component;
     signal zero_lane : t_lane;
     signal zero_plane : t_plane;
 
+    -- simulate inputs in 32-bit chunks
+    signal i1 : std_logic_vector(31 downto 0) := X"00000001";
+    signal i2 : std_logic_vector(31 downto 0) := X"00000002";
+
     type t_mode is (read_in, permutate, read_out);
     signal mode : t_mode;
 
@@ -39,7 +43,6 @@ begin
     );
 
     -- set state to zero
-    -- TODO check how to set indivdual state bits here
     zero_lane <= (others => '0');
     set_plane_zero : process (zero_lane) is
     begin
@@ -57,7 +60,7 @@ begin
 
     -- take DUT out of reset
     nrst <= '0', '1' after 5 ns;
-    
+
     -- main testbench process
     tb_main : process (clk) is
     begin
@@ -70,7 +73,29 @@ begin
             case mode is
                 when read_in =>
                     -- first round
+
+                    -- set the state to all zeroes first
                     round_in <= zero_state;
+
+                    -- add the input to the rate
+                    -- 1088 bits = 17 lanes, add first 15 lanes
+                    for x in 0 to 2 loop
+                        for y in 0 to 4 loop
+                            for z in 0 to 31 loop
+                                round_in(x)(y)(z)    <= zero_state(x)(y)(z) xor i1(z);
+                                round_in(x)(y)(z+32) <= zero_state(x)(y)(z+32) xor i2(z);
+                            end loop;
+                        end loop;
+                    end loop;
+
+                    -- add the remaining 2 lanes
+                    for y in 0 to 1 loop
+                        for z in 0 to 31 loop
+                            round_in(3)(y)(z)    <= zero_state(x)(y)(z) xor i1(z);
+                            round_in(3)(y)(z+32) <= zero_state(x)(y)(z+32) xor i2(z);
+                        end loop;
+                    end loop;
+
                     mode <= permutate;
                 when permutate =>
                     -- rounds 2 to 23
