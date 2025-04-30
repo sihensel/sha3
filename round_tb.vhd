@@ -10,13 +10,13 @@ end entity;
 
 architecture tb of round_tb is
 
-component round is
-    port (
-        round_in : in  t_state;
-        round_number : in unsigned(4 downto 0);
-        round_out : out t_state
-    );
-end component;
+    component round is
+        port (
+            round_in : in  t_state;
+            round_number : in unsigned(4 downto 0);
+            round_out : out t_state
+        );
+    end component;
 
     signal clk : std_logic;
     signal nrst : std_logic;

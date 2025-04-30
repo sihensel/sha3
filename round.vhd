@@ -5,7 +5,6 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.sha3_constants.all;
 
-
 entity round is
     port (
         round_in : in  t_state;
