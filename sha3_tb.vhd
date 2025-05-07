@@ -11,34 +11,53 @@ end entity;
 architecture tb of sha3_tb is
 
     component sha3 is
+        generic (
+            data_width : natural
+        );
         port (
             clk : in std_logic;
             nrst : in std_logic;     -- negative reset
-            m_in : in std_logic_vector(31 downto 0);
-            m_valid : in std_logic;
-            m_out : out std_logic_vector(31 downto 0)
+
+            in_ready    : out   std_logic;
+            in_valid    : in    std_logic;
+            in_data     : in    std_logic_vector(data_width - 1 downto 0);
+
+            -- axi output interface
+            out_ready   : in    std_logic;
+            out_valid   : out   std_logic;
+            out_data    : out   std_logic_vector(data_width - 1 downto 0)
         );
     end component;
+
+    constant data_width : natural := 32;
 
     signal clk : std_logic;
     signal nrst : std_logic;
 
-    signal m_in : std_logic_vector(31 downto 0) := X"00000001";
-    signal m_valid : std_logic := '0';
-    signal m_out : std_logic_vector(31 downto 0);
+    signal in_ready    : std_logic;
+    signal in_valid    : std_logic;
+    signal in_data     : std_logic_vector(data_width - 1 downto 0);
 
-    type t_mode is (read_in, read_out);
-    signal mode : t_mode;
+    -- axi output interface
+    signal out_ready   : std_logic;
+    signal out_valid   : std_logic;
+    signal out_data    : std_logic_vector(data_width - 1 downto 0);
 
 begin
 
     sha3_map : sha3
+    generic map (
+        data_width => data_width
+    )
     port map(
         clk => clk,
         nrst => nrst,
-        m_in => m_in,
-        m_valid => m_valid,
-        m_out => m_out
+        in_ready => in_ready,
+        in_valid => in_valid,
+        in_data => in_data,
+        out_ready => out_ready,
+        out_valid => out_valid,
+        out_data => out_data
     );
 
     -- take DUT out of reset
@@ -47,22 +66,21 @@ begin
     tb_main : process (clk) is
     begin
         if (nrst = '0') then
-            mode <= read_in;
-            m_in <= X"00000000";
-            m_valid <= '0';
+            in_ready <= '1';
+            in_valid <= '1';
+            in_data <= (others => '0');
+
+            out_ready <= '0';
+            out_valid <= '0';
+            out_data <= (others => '0');
 
         elsif (rising_edge(clk)) then
 
-            case mode is
-                when read_in =>
-                    m_in <= X"00000001";
-                    m_valid <= '1';
-                    mode <= read_out;
-                when read_out =>
-                    m_valid <= '0';
-                when others =>
-                    mode <= read_out;
-            end case;
+            -- control message
+            in_data <= X"00000000";
+
+            -- FIXME send data message here
+
         end if;
     end process;
 
