@@ -8,7 +8,7 @@ use work.sha3_constants.all;
 entity round is
     port (
         round_in : in  t_state;
-        round_number : in unsigned(4 downto 0);
+        round_number : in unsigned(5 downto 0);
         round_out : out t_state
     );
 end entity;
@@ -57,30 +57,30 @@ begin
 round_constants : process (round_number) is
 begin
     case round_number is
-        when "00000" => round_constant <= X"0000000000000001";
-        when "00001" => round_constant <= X"0000000000008082";
-        when "00010" => round_constant <= X"800000000000808A";
-        when "00011" => round_constant <= X"8000000080008000";
-        when "00100" => round_constant <= X"000000000000808B";
-        when "00101" => round_constant <= X"0000000080000001";
-        when "00110" => round_constant <= X"8000000080008081";
-        when "00111" => round_constant <= X"8000000000008009";
-        when "01000" => round_constant <= X"000000000000008A";
-        when "01001" => round_constant <= X"0000000000000088";
-        when "01010" => round_constant <= X"0000000080008009";
-        when "01011" => round_constant <= X"000000008000000A";
-        when "01100" => round_constant <= X"000000008000808B";
-        when "01101" => round_constant <= X"800000000000008B";
-        when "01110" => round_constant <= X"8000000000008089";
-        when "01111" => round_constant <= X"8000000000008003";
-        when "10000" => round_constant <= X"8000000000008002";
-        when "10001" => round_constant <= X"8000000000000080";
-        when "10010" => round_constant <= X"000000000000800A";
-        when "10011" => round_constant <= X"800000008000000A";
-        when "10100" => round_constant <= X"8000000080008081";
-        when "10101" => round_constant <= X"8000000000008080";
-        when "10110" => round_constant <= X"0000000080000001";
-        when "10111" => round_constant <= X"8000000080008008";
+        when "000000" => round_constant <= X"0000000000000001";
+        when "000001" => round_constant <= X"0000000000008082";
+        when "000010" => round_constant <= X"800000000000808A";
+        when "000011" => round_constant <= X"8000000080008000";
+        when "000100" => round_constant <= X"000000000000808B";
+        when "000101" => round_constant <= X"0000000080000001";
+        when "000110" => round_constant <= X"8000000080008081";
+        when "000111" => round_constant <= X"8000000000008009";
+        when "001000" => round_constant <= X"000000000000008A";
+        when "001001" => round_constant <= X"0000000000000088";
+        when "001010" => round_constant <= X"0000000080008009";
+        when "001011" => round_constant <= X"000000008000000A";
+        when "001100" => round_constant <= X"000000008000808B";
+        when "001101" => round_constant <= X"800000000000008B";
+        when "001110" => round_constant <= X"8000000000008089";
+        when "001111" => round_constant <= X"8000000000008003";
+        when "010000" => round_constant <= X"8000000000008002";
+        when "010001" => round_constant <= X"8000000000000080";
+        when "010010" => round_constant <= X"000000000000800A";
+        when "010011" => round_constant <= X"800000008000000A";
+        when "010100" => round_constant <= X"8000000080008081";
+        when "010101" => round_constant <= X"8000000000008080";
+        when "010110" => round_constant <= X"0000000080000001";
+        when "010111" => round_constant <= X"8000000080008008";
         when others  => round_constant <=(others => '0');
     end case;
 end process round_constants;

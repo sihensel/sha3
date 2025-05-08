@@ -13,10 +13,6 @@ entity data_path is
         clk : in std_logic;
         nrst : in std_logic;     -- negative reset
 
-        -- m_in : in std_logic_vector(31 downto 0);
-        -- m_valid : in std_logic;
-        -- m_out : out std_logic_vector(31 downto 0);
-
         -- axi input interface
         in_data     : in    std_logic_vector(data_width - 1 downto 0);
         
@@ -36,19 +32,16 @@ architecture rtl of data_path is
     component round is
         port (
             round_in : in  t_state;
-            round_number : in unsigned(4 downto 0);
+            round_number : in unsigned(5 downto 0);
             round_out : out t_state
         );
     end component;
 
     signal state, zero_state : t_state;
     signal round_in, round_out : t_state;
-    signal round_number : unsigned(4 downto 0);
-    signal zero_lane : t_lane;
+    signal round_number : unsigned(5 downto 0);
+    --signal zero_lane : t_lane;
     signal zero_plane : t_plane;
-
-    -- type t_mode is (read_in, permutate, read_out);
-    -- signal mode : t_mode;
 
 begin
 
@@ -59,11 +52,11 @@ begin
         round_out    => round_out
     );
 
-    zero_lane <= (others => '0');
-    set_plane_zero : process (zero_lane) is
+    --zero_lane <= (others => '0');
+    set_plane_zero : process (clk) is
     begin
         for x in 0 to 4 loop
-            zero_plane(x) <= zero_lane;
+            zero_plane(x) <= (others => '0');
         end loop;
     end process;
 
@@ -74,21 +67,29 @@ begin
         end loop;
     end process;
 
-    out_data_proc : process(d_counter, write_data, state) is
+    out_data_proc : process(d_counter, write_data) is
+        variable y : integer := 0;
     begin
-        -- FIXME use the counter to calculate the offset
         if(write_data = '1') then
-            state <= round_out;
-            -- read output from the rate
-            for z in 0 to 31 loop
-                out_data(z) <= state(0)(0)(z);
-            end loop;
-        else 
-            state <= zero_state;
+
+            case d_counter is
+                -- 8 messages to transfer 256 bits
+                when "000000" | "000001" => y := 0;
+                when "000010" | "000011" => y := 1;
+                when "000100" | "000101" => y := 2;
+                when "000110" | "000111" => y := 3;
+                when others => y := 0;
+            end case;
+
+            out_data <= state(0)(y)(32 * to_integer(d_counter(0 downto 0)) + 31 downto 32 * to_integer(d_counter(0 downto 0)));
+        else
+            out_data <= (others => '0');
         end if;
     end process;
 
     data_proc : process (clk, nrst) is
+        variable x : integer := 0;
+        variable y : integer := 0;
     begin
         if (nrst = '0') then
             round_number <= (others => '0');
@@ -98,34 +99,41 @@ begin
         elsif rising_edge(clk) then
 
             if (read_data = '1') then
-                -- FIXME use the counter to calculate the offset
-                -- add data to the rate, 17 lanes in total
-                -- write the first 15 lanes
-                state <= zero_state;
-                for x in 0 to 2 loop
-                    for y in 0 to 4 loop
-                        for z in 0 to 31 loop
-                            state(x)(y)(z)    <= zero_state(x)(y)(z) xor in_data(z);
-                            state(x)(y)(z+32) <= zero_state(x)(y)(z+32) xor in_data(z);
-                        end loop;
-                    end loop;
-                end loop;
 
-                -- add the remaining 2 lanes
-                for y in 0 to 1 loop
-                    for z in 0 to 31 loop
-                        state(3)(y)(z)    <= zero_state(x)(y)(z) xor in_data(z);
-                        state(3)(y)(z+32) <= zero_state(x)(y)(z+32) xor in_data(z);
-                    end loop;
-                end loop;
+                case d_counter is
+                    -- plane 1
+                    when "000000" | "000001" => x := 0; y := 0;
+                    when "000010" | "000011" => x := 0; y := 1;
+                    when "000100" | "000101" => x := 0; y := 2;
+                    when "000110" | "000111" => x := 0; y := 3;
+                    when "001000" | "001001" => x := 0; y := 4;
+                    -- plane 2
+                    when "001010" | "001011" => x := 1; y := 0;
+                    when "001100" | "001101" => x := 1; y := 1;
+                    when "001110" | "001111" => x := 1; y := 2;
+                    when "010000" | "010001" => x := 1; y := 3;
+                    when "010010" | "010011" => x := 1; y := 4;
+                    -- plane 3
+                    when "010100" | "010101" => x := 2; y := 0;
+                    when "010110" | "010111" => x := 2; y := 1;
+                    when "011000" | "011001" => x := 2; y := 2;
+                    when "011010" | "011011" => x := 2; y := 3;
+                    when "011100" | "011101" => x := 2; y := 4;
+                    -- plane 4, first two lanes
+                    when "011110" | "011111" => x := 3; y := 0;
+                    when "100000" | "100001" => x := 3; y := 1;
+                    when others => x := 0; y := 0;
+                end case;
+                state(x)(y)(32 * to_integer(d_counter(0 downto 0)) + 31 downto 32 * to_integer(d_counter(0 downto 0)) +  0) <= state(x)(y)(32 * to_integer(d_counter(0 downto 0)) + 31 downto 32 * to_integer(d_counter(0 downto 0))) xor in_data;
 
             elsif (proc_data = '1') then
-                -- FIXME this prob won't work
-                if (round_number = 0) then
+                if (d_counter = 0) then
                     round_in <= state;
-                --elsif (round_number < 23) then
-                --    round_in <= round_out;
-                --    round_number <= round_number + 1;
+                    round_number <= d_counter;
+                else
+                    round_in <= round_out;
+                    round_number <= d_counter;
+                    -- FIXME update the state after the last round
                 end if;
             end if;
         end if;

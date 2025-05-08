@@ -41,6 +41,8 @@ architecture rtl of control_path is
 
     signal in_ready_i : std_logic;
     signal out_valid_i : std_logic;
+
+    signal write_hash_after_f : std_logic;
 begin
 
     in_ready <= in_ready_i;
@@ -83,9 +85,14 @@ begin
             when st_rst =>
                 next_state <= st_read_cmd;
             when st_read_cmd =>
-                -- FIXME probably need a way to differentiate between reading the next block or writing the hash
-                if(in_ready_i = '1' and in_valid = '1' and in_data(0) = '1') then
+                -- read more data blocks after f()
+                if(in_ready_i = '1' and in_valid = '1' and in_data(0) = '0') then
                     next_state <= st_read_data;
+                    write_hash_after_f <= '0';
+                -- write out hash after f()
+                elsif(in_ready_i = '1' and in_valid = '1' and in_data(0) = '1') then
+                    next_state <= st_read_data;
+                    write_hash_after_f <= '1';
                 else
                     next_state <= current_state;
                 end if;
@@ -96,9 +103,13 @@ begin
                     next_state <= current_state;
                 end if;
             when st_process =>
-                -- FIXME is this the round counter?
-                if(counter = 7) then
-                    next_state <= st_write_data;
+                if(counter = 23) then
+                    if (write_hash_after_f = '1') then
+                        next_state <= st_write_data;
+                    else
+                        -- waiting for the next block, go back to reading commands
+                        next_state <= st_read_cmd;
+                    end if;
                 else
                     next_state <= current_state;
                 end if;
@@ -159,14 +170,14 @@ begin
                 write_data  <= '0';
 
             when st_process =>
-                if(counter < 3) then
+                if(counter < 23) then
                     -- advance counter
                     counter_en <= "11";
                 else
                     -- reset counter
                     counter_en <= "00";
                 end if;
-            
+
                 -- this state will never be able to read
                 in_ready_i  <= '0';
                 -- no writes in this state
@@ -189,7 +200,7 @@ begin
                     -- keep counter
                     counter_en <= "10";
                 end if;
-            
+
                 -- during writing, do not read
                 in_ready_i  <= '0';
                 -- write only in this state
