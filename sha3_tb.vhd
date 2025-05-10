@@ -46,7 +46,7 @@ architecture tb of sha3_tb is
     constant message_count : integer := 35;
     type t_testdata is array(0 to message_count - 1) of std_logic_vector(31 downto 0);
     signal testdata : t_testdata := (
-        X"00000000",    -- cmd message
+        X"00000001",    -- cmd message
 
         -- plane 1
         X"00000001",

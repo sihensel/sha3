@@ -103,7 +103,9 @@ begin
                     next_state <= current_state;
                 end if;
             when st_process =>
-                if(counter = 23) then
+                -- NOTE we only do 24 rounds, but need 1 more clk cycle to write
+                -- the output of f() back to the state
+                if(counter = 24) then
                     if (write_hash_after_f = '1') then
                         next_state <= st_write_data;
                     else
@@ -170,7 +172,7 @@ begin
                 write_data  <= '0';
 
             when st_process =>
-                if(counter < 23) then
+                if(counter < 24) then
                     -- advance counter
                     counter_en <= "11";
                 else

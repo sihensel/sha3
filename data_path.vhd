@@ -67,25 +67,25 @@ begin
         end loop;
     end process;
 
-    out_data_proc : process(d_counter, write_data) is
-        variable y : integer := 0;
-    begin
-        if(write_data = '1') then
-
-            case d_counter is
-                -- 8 messages to transfer 256 bits
-                when "000000" | "000001" => y := 0;
-                when "000010" | "000011" => y := 1;
-                when "000100" | "000101" => y := 2;
-                when "000110" | "000111" => y := 3;
-                when others => y := 0;
-            end case;
-
-            out_data <= state(0)(y)(32 * to_integer(d_counter(0 downto 0)) + 31 downto 32 * to_integer(d_counter(0 downto 0)));
-        else
-            out_data <= (others => '0');
-        end if;
-    end process;
+    -- out_data_proc : process(d_counter, write_data, state) is
+    --     variable y : integer := 0;
+    -- begin
+    --     if(write_data = '1') then
+    --
+    --         case d_counter is
+    --             -- 8 messages to transfer 256 bits
+    --             when "000000" | "000001" => y := 0;
+    --             when "000010" | "000011" => y := 1;
+    --             when "000100" | "000101" => y := 2;
+    --             when "000110" | "000111" => y := 3;
+    --             when others => y := 0;
+    --         end case;
+    --
+    --         out_data <= state(0)(y)(32 * to_integer(d_counter(0 downto 0)) + 31 downto 32 * to_integer(d_counter(0 downto 0)));
+    --     else
+    --         out_data <= (others => '0');
+    --     end if;
+    -- end process;
 
     data_proc : process (clk, nrst) is
         variable x : integer := 0;
@@ -130,11 +130,25 @@ begin
                 if (d_counter = 0) then
                     round_in <= state;
                     round_number <= d_counter;
+                elsif (d_counter = 24) then
+                    -- write the output of f() back to the state
+                    state <= round_out;
                 else
                     round_in <= round_out;
                     round_number <= d_counter;
-                    -- FIXME update the state after the last round
                 end if;
+
+            elsif (write_data = '1') then
+                case d_counter is
+                    -- 8 messages to transfer 256 bits
+                    when "000000" | "000001" => y := 0;
+                    when "000010" | "000011" => y := 1;
+                    when "000100" | "000101" => y := 2;
+                    when "000110" | "000111" => y := 3;
+                    when others => y := 0;
+                end case;
+
+                out_data <= state(0)(y)(32 * to_integer(d_counter(0 downto 0)) + 31 downto 32 * to_integer(d_counter(0 downto 0)));
             end if;
         end if;
     end process;
