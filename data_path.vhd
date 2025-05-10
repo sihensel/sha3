@@ -11,7 +11,7 @@ entity data_path is
     );
     port (
         clk : in std_logic;
-        nrst : in std_logic;     -- negative reset
+        rst : in std_logic;
 
         -- axi input interface
         in_data     : in    std_logic_vector(data_width - 1 downto 0);
@@ -52,7 +52,6 @@ begin
         round_out    => round_out
     );
 
-    --zero_lane <= (others => '0');
     set_plane_zero : process (clk) is
     begin
         for x in 0 to 4 loop
@@ -87,11 +86,11 @@ begin
     --     end if;
     -- end process;
 
-    data_proc : process (clk, nrst) is
+    data_proc : process (clk, rst) is
         variable x : integer := 0;
         variable y : integer := 0;
     begin
-        if (nrst = '0') then
+        if (rst = '1') then
             round_number <= (others => '0');
             state <= zero_state;
             out_data <= (others => '0');

@@ -16,7 +16,7 @@ architecture tb of sha3_tb is
         );
         port (
             clk : in std_logic;
-            nrst : in std_logic;     -- negative reset
+            rst : in std_logic;
 
             in_ready    : out   std_logic;
             in_valid    : in    std_logic;
@@ -32,7 +32,7 @@ architecture tb of sha3_tb is
     constant data_width : natural := 32;
 
     signal clk : std_logic;
-    signal nrst : std_logic;
+    signal rst : std_logic;
 
     signal in_ready    : std_logic;
     signal in_valid    : std_logic;
@@ -97,7 +97,7 @@ begin
     )
     port map(
         clk => clk,
-        nrst => nrst,
+        rst => rst,
         in_ready => in_ready,
         in_valid => in_valid,
         in_data => in_data,
@@ -107,11 +107,11 @@ begin
     );
 
     -- take DUT out of reset
-    nrst <= '0', '1' after 5 ns;
+    rst <= '1', '0' after 5 ns;
 
     tb_main : process (clk) is
     begin
-        if (nrst = '0') then
+        if (rst = '1') then
             in_ready <= '1';
             in_valid <= '1';
             in_data <= (others => '0');

@@ -11,7 +11,7 @@ entity sha3 is
     );
     port (
         clk         : in    std_logic;
-        nrst        : in    std_logic;
+        rst         : in    std_logic;
 
         -- axi input interface
         in_ready    : out   std_logic;
@@ -33,7 +33,7 @@ component control_path is
     );
     port (
         clk         : in    std_logic;
-        nrst        : in    std_logic;
+        rst         : in    std_logic;
 
         -- axi input interface
         in_ready    : out   std_logic;
@@ -58,7 +58,7 @@ component data_path is
     );
     port (
         clk         : in    std_logic;
-        nrst        : in    std_logic;
+        rst         : in    std_logic;
 
         -- axi input interface
         in_data     : in    std_logic_vector(data_width - 1 downto 0);
@@ -84,7 +84,7 @@ begin
     control_path_inst : control_path
         generic map ( data_width => data_width )
         port map ( clk          => clk,
-                   nrst         => nrst,
+                   rst          => rst,
                    in_ready     => in_ready,
                    in_valid     => in_valid,
                    in_data      => in_data,
@@ -102,7 +102,7 @@ begin
     data_path_inst : data_path
         generic map ( data_width => data_width )
         port map ( clk          => clk,
-                   nrst         => nrst,
+                   rst          => rst,
 
                    -- axi input interface
                    in_data      => in_data,

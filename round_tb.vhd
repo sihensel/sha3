@@ -19,11 +19,10 @@ architecture tb of round_tb is
     end component;
 
     signal clk : std_logic;
-    signal nrst : std_logic;
+    signal rst : std_logic;
 
     signal round_in, round_out, zero_state : t_state;
     signal round_number : unsigned(4 downto 0);
-    signal zero_lane : t_lane;
     signal zero_plane : t_plane;
 
     -- simulate inputs in 32-bit chunks
@@ -43,11 +42,10 @@ begin
     );
 
     -- set state to zero
-    zero_lane <= (others => '0');
-    set_plane_zero : process (zero_lane) is
+    set_plane_zero : process (clk) is
     begin
         for x in 0 to 4 loop
-            zero_plane(x) <= zero_lane;
+            zero_plane(x) <= (others => '0');
         end loop;
     end process;
 
@@ -59,12 +57,12 @@ begin
     end process;
 
     -- take DUT out of reset
-    nrst <= '0', '1' after 5 ns;
+    rst <= '1', '0' after 5 ns;
 
     -- main testbench process
     tb_main : process (clk) is
     begin
-        if (nrst = '0') then
+        if (rst = '1') then
             round_number <= (others => '0');
             mode <= read_in;
 

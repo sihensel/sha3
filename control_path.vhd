@@ -11,7 +11,7 @@ entity control_path is
     );
     port (
         clk         : in    std_logic;
-        nrst        : in    std_logic;
+        rst         : in    std_logic;
 
         -- axi input interface
         in_ready    : out   std_logic;
@@ -50,9 +50,9 @@ begin
 
     d_counter <= counter;
 
-    counter_proc : process(nrst, clk) is
+    counter_proc : process(rst, clk) is
     begin
-        if(nrst = '0') then
+        if(rst = '1') then
             counter <= (others => '0');
         else
             if(rising_edge(clk)) then
@@ -67,10 +67,10 @@ begin
         end if;
     end process;
 
-    switch_state_proc : process(nrst, clk) is
+    switch_state_proc : process(rst, clk) is
     begin
         -- asynchronous reset
-        if(nrst = '0') then
+        if(rst = '1') then
             current_state <= st_rst;
         else
             if(rising_edge(clk)) then
