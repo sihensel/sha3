@@ -36,54 +36,54 @@ signal cmd3 : std_logic_vector(7 downto 0) := x"01";
 
 -- 136 bytes to write one message block
 signal data0 : std_logic_vector(7 downto 0) := x"00";
-signal data1 : std_logic_vector(7 downto 0) := x"FF";
+signal data1 : std_logic_vector(7 downto 0) := x"00";
 signal data2 : std_logic_vector(7 downto 0) := x"00";
-signal data3 : std_logic_vector(7 downto 0) := x"FF";
+signal data3 : std_logic_vector(7 downto 0) := x"02";
 
 signal data4 : std_logic_vector(7 downto 0) := x"00";
-signal data5 : std_logic_vector(7 downto 0) := x"FF";
+signal data5 : std_logic_vector(7 downto 0) := x"00";
 signal data6 : std_logic_vector(7 downto 0) := x"00";
-signal data7 : std_logic_vector(7 downto 0) := x"FF";
+signal data7 : std_logic_vector(7 downto 0) := x"00";
 
 signal data8 : std_logic_vector(7 downto 0) := x"00";
-signal data9 : std_logic_vector(7 downto 0) := x"FF";
+signal data9 : std_logic_vector(7 downto 0) := x"00";
 signal data10 : std_logic_vector(7 downto 0) := x"00";
-signal data11 : std_logic_vector(7 downto 0) := x"FF";
+signal data11 : std_logic_vector(7 downto 0) := x"00";
 
 signal data12 : std_logic_vector(7 downto 0) := x"00";
-signal data13 : std_logic_vector(7 downto 0) := x"FF";
+signal data13 : std_logic_vector(7 downto 0) := x"00";
 signal data14 : std_logic_vector(7 downto 0) := x"00";
-signal data15 : std_logic_vector(7 downto 0) := x"FF";
+signal data15 : std_logic_vector(7 downto 0) := x"00";
 
 signal data16 : std_logic_vector(7 downto 0) := x"00";
-signal data17 : std_logic_vector(7 downto 0) := x"FF";
+signal data17 : std_logic_vector(7 downto 0) := x"00";
 signal data18 : std_logic_vector(7 downto 0) := x"00";
-signal data19 : std_logic_vector(7 downto 0) := x"FF";
+signal data19 : std_logic_vector(7 downto 0) := x"00";
 
 signal data20 : std_logic_vector(7 downto 0) := x"00";
-signal data21 : std_logic_vector(7 downto 0) := x"FF";
+signal data21 : std_logic_vector(7 downto 0) := x"00";
 signal data22 : std_logic_vector(7 downto 0) := x"00";
-signal data23 : std_logic_vector(7 downto 0) := x"FF";
+signal data23 : std_logic_vector(7 downto 0) := x"00";
 
 signal data24 : std_logic_vector(7 downto 0) := x"00";
-signal data25 : std_logic_vector(7 downto 0) := x"FF";
+signal data25 : std_logic_vector(7 downto 0) := x"00";
 signal data26 : std_logic_vector(7 downto 0) := x"00";
-signal data27 : std_logic_vector(7 downto 0) := x"FF";
+signal data27 : std_logic_vector(7 downto 0) := x"00";
 
 signal data28 : std_logic_vector(7 downto 0) := x"00";
-signal data29 : std_logic_vector(7 downto 0) := x"FF";
+signal data29 : std_logic_vector(7 downto 0) := x"00";
 signal data30 : std_logic_vector(7 downto 0) := x"00";
-signal data31 : std_logic_vector(7 downto 0) := x"FF";
+signal data31 : std_logic_vector(7 downto 0) := x"00";
 
 signal data32 : std_logic_vector(7 downto 0) := x"00";
-signal data33 : std_logic_vector(7 downto 0) := x"FF";
+signal data33 : std_logic_vector(7 downto 0) := x"00";
 signal data34 : std_logic_vector(7 downto 0) := x"00";
-signal data35 : std_logic_vector(7 downto 0) := x"FF";
+signal data35 : std_logic_vector(7 downto 0) := x"00";
 
 signal data36 : std_logic_vector(7 downto 0) := x"00";
-signal data37 : std_logic_vector(7 downto 0) := x"FF";
+signal data37 : std_logic_vector(7 downto 0) := x"00";
 signal data38 : std_logic_vector(7 downto 0) := x"00";
-signal data39 : std_logic_vector(7 downto 0) := x"FF";
+signal data39 : std_logic_vector(7 downto 0) := x"00";
 
 signal data40 : std_logic_vector(7 downto 0) := x"00";
 signal data41 : std_logic_vector(7 downto 0) := x"00";

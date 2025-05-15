@@ -7,24 +7,24 @@ use work.sha3_constants.all;
 
 entity round is
     port (
-        round_in : in  t_state;
-        round_number : in unsigned(5 downto 0);
-        round_out : out t_state
+        round_in     : in   t_state;
+        round_number : in   unsigned(5 downto 0);
+        round_out    : out  t_state
     );
 end entity;
 
 architecture rtl of round is
 
-    signal theta_in  : t_state;
-    signal theta_out : t_state;
-    signal rho_in    : t_state;
-    signal rho_out   : t_state;
-    signal pi_in     : t_state;
-    signal pi_out    : t_state;
-    signal chi_in    : t_state;
-    signal chi_out   : t_state;
-    signal iota_in   : t_state;
-    signal iota_out  : t_state;
+    signal theta_in       : t_state;
+    signal theta_out      : t_state;
+    signal rho_in         : t_state;
+    signal rho_out        : t_state;
+    signal pi_in          : t_state;
+    signal pi_out         : t_state;
+    signal chi_in         : t_state;
+    signal chi_out        : t_state;
+    signal iota_in        : t_state;
+    signal iota_out       : t_state;
     signal round_constant : std_logic_vector(63 downto 0);
 
     -- used for Theta
@@ -34,7 +34,7 @@ architecture rtl of round is
     -- lookup table for Rho constants, see Table 2 of FIPS-202
     -- these values are already precalculated with mod 64
     type t_rho_const is array (0 to 4, 0 to 4) of integer range 0 to 63;
-    signal rho_const : t_rho_const := (
+    constant rho_const : t_rho_const := (
     -- x 0   1   2   3   4       y
         (0,  1,  62, 28, 27), -- 0
         (36, 44, 6,  55, 20), -- 1
@@ -54,7 +54,7 @@ begin
     round_out <= iota_out;
 
 -- get the round constant for each round
-round_constants : process (round_number) is
+get_round_constant : process (round_number) is
 begin
     case round_number is
         when "000000" => round_constant <= X"0000000000000001";
@@ -83,7 +83,7 @@ begin
         when "010111" => round_constant <= X"8000000080008008";
         when others  => round_constant <=(others => '0');
     end case;
-end process round_constants;
+end process;
 
 -- Theta
 -- Theta first step
@@ -155,7 +155,7 @@ begin
 end process;
 
 -- Iota
-process (iota_in) is
+process (iota_in, round_constant) is
 begin
     -- copy state as is
     for x in 0 to 4 loop

@@ -46,46 +46,46 @@ architecture tb of sha3_tb is
     constant message_count : integer := 35;
     type t_testdata is array(0 to message_count - 1) of std_logic_vector(31 downto 0);
     signal testdata : t_testdata := (
-        X"00000001",    -- cmd message
+        X"00000000",    -- cmd message
 
         -- plane 1
-        X"00000001",
         X"00000002",
-        X"00000003",
-        X"00000004",
-        X"00000005",
-        X"00000006",
-        X"00000007",
-        X"00000008",
-        X"00000009",
-        X"0000000A",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
         -- plane 2
-        X"0000000B",
-        X"0000000C",
-        X"0000000D",
-        X"0000000E",
-        X"0000000F",
-        X"00000010",
-        X"00000011",
-        X"00000012",
-        X"00000013",
-        X"00000014",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
         -- plane 3
-        X"00000015",
-        X"00000016",
-        X"00000017",
-        X"00000018",
-        X"00000019",
-        X"0000001a",
-        X"0000001b",
-        X"0000001c",
-        X"0000001d",
-        X"0000001e",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000",
         -- plane 4
-        X"0000001f",
-        X"00000020",
-        X"00000021",
-        X"00000022"
+        X"00000000",
+        X"00000000",
+        X"00000000",
+        X"00000000"
     );
     signal i : integer := 0;
 
@@ -112,23 +112,32 @@ begin
     tb_main : process (clk) is
     begin
         if (rst = '1') then
-            in_ready <= '1';
-            in_valid <= '1';
-            in_data <= (others => '0');
-
+            out_ready <= '0';
+            i <= 0;
         elsif (rising_edge(clk)) then
 
             -- control message
-            if (i < message_count) then
-
-                in_data <= testdata(i);
+            if (i < message_count and in_ready = '1') then
+                out_ready <= '0';
                 i <= i + 1;
+            elsif (i < message_count and in_ready = '0') then
+                out_ready <= '0';
             else
-                in_valid <= '0';
-                out_valid <= '1';
                 out_ready <= '1';
             end if;
 
+        end if;
+    end process;
+
+
+    tb_main_async : process (i) is
+    begin
+        if (i < message_count) then
+            in_valid <= '1';
+            in_data <= testdata(i);
+        else
+            in_valid <= '0';
+            in_data <= (others => '0');
         end if;
     end process;
 

@@ -45,9 +45,8 @@ architecture rtl of control_path is
     signal write_hash_after_f : std_logic;
 begin
 
-    in_ready <= in_ready_i;
+    in_ready  <= in_ready_i;
     out_valid <= out_valid_i;
-
     d_counter <= counter;
 
     counter_proc : process(rst, clk) is
@@ -103,9 +102,7 @@ begin
                     next_state <= current_state;
                 end if;
             when st_process =>
-                -- NOTE we only do 24 rounds, but need 1 more clk cycle to write
-                -- the output of f() back to the state
-                if(counter = 24) then
+                if(counter = 23) then
                     if (write_hash_after_f = '1') then
                         next_state <= st_write_data;
                     else
@@ -148,7 +145,7 @@ begin
                 -- deactivate write data
                 write_data  <= '0';
 
-            when st_read_data => 
+            when st_read_data =>
                 if(in_ready_i = '1' and in_valid = '1' and counter < 33) then
                     -- advance counter
                     counter_en <= "11";
@@ -172,7 +169,7 @@ begin
                 write_data  <= '0';
 
             when st_process =>
-                if(counter < 24) then
+                if(counter < 23) then
                     -- advance counter
                     counter_en <= "11";
                 else
