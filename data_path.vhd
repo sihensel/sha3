@@ -38,9 +38,7 @@ architecture rtl of data_path is
     end component;
 
     signal state        : t_state;
-    signal zero_state   : t_state;
     signal round_out    : t_state;
-    signal zero_plane   : t_plane;
 
 begin
 
@@ -50,21 +48,6 @@ begin
         round_number => d_counter,
         round_out    => round_out
     );
-
-    -- FIXME do we need zero_state or is a loop better?
-    set_plane_zero : process (clk) is
-    begin
-        for x in 0 to 4 loop
-            zero_plane(x) <= (others => '0');
-        end loop;
-    end process;
-
-    set_state_zero : process (zero_plane) is
-    begin
-        for y in 0 to 4 loop
-            zero_state(y) <= zero_plane;
-        end loop;
-    end process;
 
     out_data_proc : process(d_counter, write_data, state) is
         variable y : integer := 0;
@@ -92,7 +75,12 @@ begin
         variable y : integer := 0;
     begin
         if (rst = '1') then
-            state <= zero_state;
+            -- initialize the state with zeroes
+            for x in 0 to 4 loop
+                for y in 0 to 4 loop
+                    state(x)(y) <= (others => '0');
+                end loop;
+            end loop;
 
         elsif rising_edge(clk) then
 
@@ -130,9 +118,14 @@ begin
                 state <= round_out;
 
             elsif (write_data = '1') then
+
                 -- reset the state after writing the last block
                 if (d_counter = 7) then
-                    state <= zero_state;
+                    for x in 0 to 4 loop
+                        for y in 0 to 4 loop
+                            state(x)(y) <= (others => '0');
+                        end loop;
+                    end loop;
                 end if;
 
             end if;
