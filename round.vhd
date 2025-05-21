@@ -107,7 +107,7 @@ begin
 end process;
 
 -- Theta third step
-process (D) is
+process (D, theta_in) is
 begin
     for x in 0 to 4 loop
         for y in 0 to 4 loop

@@ -43,6 +43,7 @@ architecture rtl of control_path is
     signal out_valid_i : std_logic;
 
     signal write_hash_after_f : std_logic;
+    signal write_hash_after_f_reg : std_logic;
 begin
 
     in_ready  <= in_ready_i;
@@ -78,8 +79,20 @@ begin
         end if;
     end process;
 
-    next_state_proc : process(current_state, in_ready_i, in_valid, in_data, out_ready, out_valid_i, counter) is
+    update_write_state : process(rst, clk, write_hash_after_f) is
     begin
+        if (rst = '1') then
+            write_hash_after_f_reg <= '0';
+        else
+            if (rising_edge(clk)) then
+                write_hash_after_f_reg <= write_hash_after_f;
+            end if;
+        end if;
+    end process;
+
+    next_state_proc : process(current_state, in_ready_i, in_valid, in_data, out_ready, out_valid_i, counter, write_hash_after_f_reg) is
+    begin
+        write_hash_after_f <= write_hash_after_f_reg;
         case current_state is
             when st_rst =>
                 next_state <= st_read_cmd;
@@ -103,7 +116,7 @@ begin
                 end if;
             when st_process =>
                 if(counter = 23) then
-                    if (write_hash_after_f = '1') then
+                    if (write_hash_after_f_reg = '1') then
                         next_state <= st_write_data;
                     else
                         -- waiting for the next block, go back to reading commands
