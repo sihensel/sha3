@@ -28,8 +28,7 @@ architecture rtl of round is
     signal round_constant : std_logic_vector(63 downto 0);
 
     -- used for Theta
-    signal C : t_plane;
-    signal D : t_plane;
+    signal sum_sheet : t_plane;
 
     -- lookup table for Rho constants, see Table 2 of FIPS-202
     -- these values are already precalculated with mod 64
@@ -86,33 +85,21 @@ begin
 end process;
 
 -- Theta
--- Theta first step
 process (theta_in) is
 begin
     for y in 0 to 4 loop
         for z in 0 to 63 loop
-            C(y)(z) <= theta_in(0)(y)(z) xor theta_in(1)(y)(z) xor theta_in(2)(y)(z) xor theta_in(3)(y)(z) xor theta_in(4)(y)(z);
+            sum_sheet(y)(z) <= theta_in(0)(y)(z) xor theta_in(1)(y)(z) xor theta_in(2)(y)(z) xor theta_in(3)(y)(z) xor theta_in(4)(y)(z);
         end loop;
     end loop;
 end process;
 
--- Theta second step
-process (C) is
-begin
-    for y in 0 to 4 loop
-        for z in 0 to 63 loop
-            D(y)(z) <= C((y - 1) mod 5)(z) xor C((y + 1) mod 5)((z - 1) mod w);
-        end loop;
-    end loop;
-end process;
-
--- Theta third step
-process (D, theta_in) is
+process (theta_in, sum_sheet) is
 begin
     for x in 0 to 4 loop
         for y in 0 to 4 loop
             for z in 0 to 63 loop
-                theta_out(x)(y)(z) <= theta_in(x)(y)(z) xor D(y)(z);
+                theta_out(x)(y)(z) <= theta_in(x)(y)(z) xor sum_sheet((y - 1) mod 5)(z) xor sum_sheet((y + 1) mod 5)((z - 1) mod 64);
             end loop;
         end loop;
     end loop;
