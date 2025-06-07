@@ -207,7 +207,7 @@ begin
         if(rising_edge(clk)) then
             if(rst='1') then
                 debug_counter <= (others => '0');
-            elsif(i_sha3_tvalid='1') then
+            elsif(m_axis_tvalid='1') then
                 debug_counter <= debug_counter + 1;
             end if;
         end if;
