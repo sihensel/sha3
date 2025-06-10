@@ -59,35 +59,11 @@ architecture rtl of round is
     signal iota_in_3        : t_state;
     signal iota_out_3       : t_state;
 
-    signal theta_in_4       : t_state;
-    signal theta_out_4      : t_state;
-    signal rho_in_4         : t_state;
-    signal rho_out_4        : t_state;
-    signal pi_in_4          : t_state;
-    signal pi_out_4         : t_state;
-    signal chi_in_4         : t_state;
-    signal chi_out_4        : t_state;
-    signal iota_in_4        : t_state;
-    signal iota_out_4       : t_state;
-
-    signal theta_in_5       : t_state;
-    signal theta_out_5      : t_state;
-    signal rho_in_5         : t_state;
-    signal rho_out_5        : t_state;
-    signal pi_in_5          : t_state;
-    signal pi_out_5         : t_state;
-    signal chi_in_5         : t_state;
-    signal chi_out_5        : t_state;
-    signal iota_in_5        : t_state;
-    signal iota_out_5       : t_state;
-
     -- used for Theta
     signal sum_sheet : t_plane;
     signal sum_sheet_1 : t_plane;
     signal sum_sheet_2 : t_plane;
     signal sum_sheet_3 : t_plane;
-    signal sum_sheet_4 : t_plane;
-    signal sum_sheet_5 : t_plane;
 
     -- lookup table for Rho constants, see Table 2 of FIPS-202
     -- these values are already precalculated with mod 64
@@ -160,19 +136,7 @@ begin
     pi_in_3     <= rho_out_3;
     chi_in_3    <= pi_out_3;
     iota_in_3   <= chi_out_3;
-
-    theta_in_4  <= iota_out_3;
-    rho_in_4    <= theta_out_4;
-    pi_in_4     <= rho_out_4;
-    chi_in_4    <= pi_out_4;
-    iota_in_4   <= chi_out_4;
-
-    theta_in_5  <= iota_out_4;
-    rho_in_5    <= theta_out_5;
-    pi_in_5     <= rho_out_5;
-    chi_in_5    <= pi_out_5;
-    iota_in_5   <= chi_out_5;
-    round_out   <= iota_out_5;
+    round_out   <= iota_out_3;
 
 
 -- Theta
@@ -246,7 +210,7 @@ begin
 
     -- add round constant to the lane at (0, 0)
     for z in 0 to 63 loop
-        iota_out(0)(0)(z) <= iota_in(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + round_number + round_number + round_number)(z);
+        iota_out(0)(0)(z) <= iota_in(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + round_number)(z);
     end loop;
 end process;
 
@@ -324,7 +288,7 @@ begin
 
     -- add round constant to the lane at (0, 0)
     for z in 0 to 63 loop
-        iota_out_1(0)(0)(z) <= iota_in_1(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + round_number + round_number + round_number + 1)(z);
+        iota_out_1(0)(0)(z) <= iota_in_1(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + round_number + 1)(z);
     end loop;
 end process;
 
@@ -402,7 +366,7 @@ begin
 
     -- add round constant to the lane at (0, 0)
     for z in 0 to 63 loop
-        iota_out_2(0)(0)(z) <= iota_in_2(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + round_number + round_number + round_number + 2)(z);
+        iota_out_2(0)(0)(z) <= iota_in_2(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + round_number + 2)(z);
     end loop;
 end process;
 
@@ -480,163 +444,7 @@ begin
 
     -- add round constant to the lane at (0, 0)
     for z in 0 to 63 loop
-        iota_out_3(0)(0)(z) <= iota_in_3(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + round_number + round_number + round_number + 3)(z);
-    end loop;
-end process;
-
-
--- Fifth round
-
--- Theta
-process (theta_in_4) is
-begin
-    for y in 0 to 4 loop
-        for z in 0 to 63 loop
-            sum_sheet_4(y)(z) <= theta_in_4(0)(y)(z) xor theta_in_4(1)(y)(z) xor theta_in_4(2)(y)(z) xor theta_in_4(3)(y)(z) xor theta_in_4(4)(y)(z);
-        end loop;
-    end loop;
-end process;
-
-process (theta_in_4, sum_sheet_4) is
-begin
-    for x in 0 to 4 loop
-        for y in 0 to 4 loop
-            for z in 0 to 63 loop
-                theta_out_4(x)(y)(z) <= theta_in_4(x)(y)(z) xor sum_sheet_4((y - 1) mod 5)(z) xor sum_sheet_4((y + 1) mod 5)((z - 1) mod 64);
-            end loop;
-        end loop;
-    end loop;
-end process;
-
--- Rho
-process (rho_in_4) is
-begin
-    for x in 0 to 4 loop
-        for y in 0 to 4 loop
-            for z in 0 to 63 loop
-                rho_out_4(x)(y)(z) <= rho_in_4(x)(y)((z - rho_const(x, y)) mod 64);
-            end loop;
-        end loop;
-    end loop;
-end process;
-
--- Pi
-process (pi_in_4) is
-begin
-    for x in 0 to 4 loop
-        for y in 0 to 4 loop
-            for z in 0 to 63 loop
-                pi_out_4((2*y + 3*x) mod 5)(0*y + 1*x)(z) <= pi_in_4(x)(y)(z);
-            end loop;
-        end loop;
-    end loop;
-end process;
-
--- Chi
-process (chi_in_4) is
-begin
-    for x in 0 to 4 loop
-        for y in 0 to 4 loop
-            for z in 0 to 63 loop
-                chi_out_4(x)(y)(z) <= chi_in_4(x)(y)(z) xor (not(chi_in_4(x)((y+1) mod 5)(z)) and chi_in_4(x)((y+2) mod 5)(z));
-            end loop;
-        end loop;
-    end loop;
-end process;
-
--- Iota
-process (iota_in_4, round_number) is
-begin
-    -- copy state as is
-    for x in 0 to 4 loop
-        for y in 0 to 4 loop
-            for z in 0 to 63 loop
-                iota_out_4(x)(y)(z) <= iota_in_4(x)(y)(z);
-            end loop;
-        end loop;
-    end loop;
-
-    -- add round constant to the lane at (0, 0)
-    for z in 0 to 63 loop
-        iota_out_4(0)(0)(z) <= iota_in_4(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + round_number + round_number + round_number + 4)(z);
-    end loop;
-end process;
-
-
--- Sixth round
-
--- Theta
-process (theta_in_5) is
-begin
-    for y in 0 to 4 loop
-        for z in 0 to 63 loop
-            sum_sheet_5(y)(z) <= theta_in_5(0)(y)(z) xor theta_in_5(1)(y)(z) xor theta_in_5(2)(y)(z) xor theta_in_5(3)(y)(z) xor theta_in_5(4)(y)(z);
-        end loop;
-    end loop;
-end process;
-
-process (theta_in_5, sum_sheet_5) is
-begin
-    for x in 0 to 4 loop
-        for y in 0 to 4 loop
-            for z in 0 to 63 loop
-                theta_out_5(x)(y)(z) <= theta_in_5(x)(y)(z) xor sum_sheet_5((y - 1) mod 5)(z) xor sum_sheet_5((y + 1) mod 5)((z - 1) mod 64);
-            end loop;
-        end loop;
-    end loop;
-end process;
-
--- Rho
-process (rho_in_5) is
-begin
-    for x in 0 to 4 loop
-        for y in 0 to 4 loop
-            for z in 0 to 63 loop
-                rho_out_5(x)(y)(z) <= rho_in_5(x)(y)((z - rho_const(x, y)) mod 64);
-            end loop;
-        end loop;
-    end loop;
-end process;
-
--- Pi
-process (pi_in_5) is
-begin
-    for x in 0 to 4 loop
-        for y in 0 to 4 loop
-            for z in 0 to 63 loop
-                pi_out_5((2*y + 3*x) mod 5)(0*y + 1*x)(z) <= pi_in_5(x)(y)(z);
-            end loop;
-        end loop;
-    end loop;
-end process;
-
--- Chi
-process (chi_in_5) is
-begin
-    for x in 0 to 4 loop
-        for y in 0 to 4 loop
-            for z in 0 to 63 loop
-                chi_out_5(x)(y)(z) <= chi_in_5(x)(y)(z) xor (not(chi_in_5(x)((y+1) mod 5)(z)) and chi_in_5(x)((y+2) mod 5)(z));
-            end loop;
-        end loop;
-    end loop;
-end process;
-
--- Iota
-process (iota_in_5, round_number) is
-begin
-    -- copy state as is
-    for x in 0 to 4 loop
-        for y in 0 to 4 loop
-            for z in 0 to 63 loop
-                iota_out_5(x)(y)(z) <= iota_in_5(x)(y)(z);
-            end loop;
-        end loop;
-    end loop;
-
-    -- add round constant to the lane at (0, 0)
-    for z in 0 to 63 loop
-        iota_out_5(0)(0)(z) <= iota_in_5(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + round_number + round_number + round_number + 5)(z);
+        iota_out_3(0)(0)(z) <= iota_in_3(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + round_number + 3)(z);
     end loop;
 end process;
 
