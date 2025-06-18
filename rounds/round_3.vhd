@@ -65,38 +65,34 @@ architecture rtl of round is
         (18, 2,  61, 56, 14)  -- 4
     );
 
-    function f_get_round_constant(i : unsigned) return std_logic_vector is
-        variable round_constant : std_logic_vector(63 downto 0);
-    begin
-        case i is
-            when "000000" => round_constant := X"0000000000000001";
-            when "000001" => round_constant := X"0000000000008082";
-            when "000010" => round_constant := X"800000000000808A";
-            when "000011" => round_constant := X"8000000080008000";
-            when "000100" => round_constant := X"000000000000808B";
-            when "000101" => round_constant := X"0000000080000001";
-            when "000110" => round_constant := X"8000000080008081";
-            when "000111" => round_constant := X"8000000000008009";
-            when "001000" => round_constant := X"000000000000008A";
-            when "001001" => round_constant := X"0000000000000088";
-            when "001010" => round_constant := X"0000000080008009";
-            when "001011" => round_constant := X"000000008000000A";
-            when "001100" => round_constant := X"000000008000808B";
-            when "001101" => round_constant := X"800000000000008B";
-            when "001110" => round_constant := X"8000000000008089";
-            when "001111" => round_constant := X"8000000000008003";
-            when "010000" => round_constant := X"8000000000008002";
-            when "010001" => round_constant := X"8000000000000080";
-            when "010010" => round_constant := X"000000000000800A";
-            when "010011" => round_constant := X"800000008000000A";
-            when "010100" => round_constant := X"8000000080008081";
-            when "010101" => round_constant := X"8000000000008080";
-            when "010110" => round_constant := X"0000000080000001";
-            when "010111" => round_constant := X"8000000080008008";
-            when others  => round_constant := (others => '0');
-        end case;
-        return round_constant;
-    end function;
+    -- lookup table for the Iota round constants
+    type t_round_const is array(0 to 23) of std_logic_vector(63 downto 0);
+    constant round_const : t_round_const := (
+        X"0000000000000001",
+        X"0000000000008082",
+        X"800000000000808A",
+        X"8000000080008000",
+        X"000000000000808B",
+        X"0000000080000001",
+        X"8000000080008081",
+        X"8000000000008009",
+        X"000000000000008A",
+        X"0000000000000088",
+        X"0000000080008009",
+        X"000000008000000A",
+        X"000000008000808B",
+        X"800000000000008B",
+        X"8000000000008089",
+        X"8000000000008003",
+        X"8000000000008002",
+        X"8000000000000080",
+        X"000000000000800A",
+        X"800000008000000A",
+        X"8000000080008081",
+        X"8000000000008080",
+        X"0000000080000001",
+        X"8000000080008008"
+    );
 
 begin
 
@@ -193,9 +189,11 @@ begin
     end loop;
 
     -- add round constant to the lane at (0, 0)
-    for z in 0 to 63 loop
-        iota_out(0)(0)(z) <= iota_in(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number)(z);
-    end loop;
+    if (round_number <= 7) then
+        for z in 0 to 63 loop
+            iota_out(0)(0)(z) <= iota_in(0)(0)(z) xor round_const(to_integer(round_number) * 3)(z);
+        end loop;
+    end if;
 end process;
 
 
@@ -271,9 +269,11 @@ begin
     end loop;
 
     -- add round constant to the lane at (0, 0)
-    for z in 0 to 63 loop
-        iota_out_1(0)(0)(z) <= iota_in_1(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + 1)(z);
-    end loop;
+    if (round_number <= 7) then
+        for z in 0 to 63 loop
+            iota_out_1(0)(0)(z) <= iota_in_1(0)(0)(z) xor round_const(to_integer(round_number) * 3 + 1)(z);
+        end loop;
+    end if;
 end process;
 
 
@@ -349,9 +349,11 @@ begin
     end loop;
 
     -- add round constant to the lane at (0, 0)
-    for z in 0 to 63 loop
-        iota_out_2(0)(0)(z) <= iota_in_2(0)(0)(z) xor f_get_round_constant(round_number + round_number + round_number + 2)(z);
-    end loop;
+    if (round_number <= 7) then
+        for z in 0 to 63 loop
+            iota_out_2(0)(0)(z) <= iota_in_2(0)(0)(z) xor round_const(to_integer(round_number) * 3 + 2)(z);
+        end loop;
+    end if;
 end process;
 
 end architecture;
