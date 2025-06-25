@@ -9,6 +9,7 @@ device.parity   = 'N'       # No parity
 device.stopbits = 1         # Number of Stop bits = 1
 
 
+# send the first command message
 cmd0 = bytearray(4)
 cmd0[0] = 1
 
@@ -20,25 +21,27 @@ data0[133] = 2
 data0[134] = 2
 data0[135] = 2
 
+# send a second message block
 # cmd1 = bytearray(4)
 # cmd1[0] = 1
 #
 # data1 = bytearray(136)
 # data1[0] = 3
-#
+
+
 for i in range(4):
     device.write(int.to_bytes(cmd0[i]))
 
 for i in range(136):
-    time.sleep(1)
+    # time.sleep(1)
     device.write(int.to_bytes(data0[i]))
-#
+
 # for i in range(4):
 #     device.write(int.to_bytes(cmd1[i]))
 #
 # for i in range(136):
 #     device.write(int.to_bytes(data1[i]))
-#
+
 out = device.read(32)
 
 # the bytes within each word are in reverse order, rearrange them
@@ -51,7 +54,7 @@ for i in range(8):
 
 print(md.hex())
 
-#
+
 # # send more data after reading the first output
 # cmd2 = bytearray(4)
 # cmd2[0] = 1
@@ -76,6 +79,6 @@ print(md.hex())
 #     md[4 * i + 3] = out[4 * i + 0]
 #
 # print(md.hex())
-#
-#
+
+
 device.close()
